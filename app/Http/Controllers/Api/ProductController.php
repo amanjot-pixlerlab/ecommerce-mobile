@@ -1,85 +1,92 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use App\Http\Controllers\API\BaseController as BaseController;
 
-class ProductController extends Controller
+class ProductController extends BaseController
 {
     /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
+     * method to get all the products
      */
-    public function index()
+    public function get()
     {
-        //
+        //set variable
+        $products = [];
+
+        //get all products
+        try {
+            $products = Product::paginate(9);
+        } catch (\Throwable $th) {
+            return $this->handleError('Error in collecting data', ['error'=>$th]);
+        }
+
+        //return error if no product is found
+        $count = count($products);
+        if($count <= 0){
+            return $this->handleError('Empty', ['error'=>'No data found']);
+        }
+
+        return $this->handleResponse($products, $count.' '.($count == 1?'product has':'products have').' been retrieved!');
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
+     * method to get filter result
      */
-    public function create()
+    public function filter($condition)
     {
-        //
+
+        if(!isset($condition) || $condition === ''){
+            return $this->handleError('No filters', ['error'=>"Please provide a filter condition"]);
+        }
+
+        //set variable
+        $products = [];
+
+        //get all products
+        try {
+            switch(strtolower($condition)){
+                case 'lowtohigh': $products = Product::orderBy('price', 'asc')->paginate(9); break;
+                case 'hightolow': $products = Product::orderBy('price', 'desc')->paginate(9); break;
+                case 'date': $products = Product::orderBy('updated_at')->paginate(9); break;
+                default : return $this->handleError('Not match', ['error'=>"Filter does not match. Available filters are 'lowtohigh', 'hightolow', 'date'"]);
+            }
+        } catch (\Throwable $th) {
+            return $this->handleError('Error in collecting data', ['error'=>$th]);
+        }
+
+        //return error if no product is found
+        $count = count($products);
+        if($count <= 0){
+            return $this->handleError('Empty', ['error'=>'No data found']);
+        }
+
+        return $this->handleResponse($products, $count.' '.($count == 1?'product has':'products have').' been retrieved!');
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * method to get search result
      */
-    public function store(Request $request)
+    public function search($name)
     {
-        //
-    }
+        //set variable
+        $products = [];
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Product $product)
-    {
-        //
-    }
+        //get all products
+        try {
+            $products = Product::where('name','LIKE', '%'.$name.'%')->paginate(9);
+        } catch (\Throwable $th) {
+            return $this->handleError('Error in collecting data', ['error'=>$th]);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
+        //return error if no product is found
+        $count = count($products);
+        if($count <= 0){
+            return $this->handleError('Empty', ['error'=>'No data found']);
+        }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Product $product)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Product $product)
-    {
-        //
+        return $this->handleResponse($products, $count.' '.($count == 1?'product has':'products have').' been retrieved!');
     }
 }
