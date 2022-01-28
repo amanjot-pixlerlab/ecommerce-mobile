@@ -85,11 +85,13 @@ class ForgetPassword extends BaseController
         }
 
         $user = User::where('email', $request->email)
-            ->update(['password' => bcrypt($request->new_password)]);
+            ->update(['password' => bcrypt($request->password)]);
+        $success['email'] = $request->email;
+        
         
         DB::table('password_resets')->where(['email'=> $request->email])->delete();
 
-        return $this->handleResponse($request->all(), 'Password reset successfully!');
+        return $this->handleResponse($success, 'Password reset successfully!');
     }
    
 }
