@@ -2,11 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\ForgetPassword;
-use App\Http\Controllers\API\PopularProductController;
-use App\Http\Controllers\API\ProductController;
-use App\Http\Controllers\API\ReviewController;
-use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\Api\ForgetPassword;
+use App\Http\Controllers\Api\PopularProductController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ReviewController;
+use App\Http\Controllers\Api\UserController;
 use Laravel\Sanctum\Sanctum;
 
 /*
@@ -20,6 +20,18 @@ use Laravel\Sanctum\Sanctum;
 |
 */
 
+//auth apis
+Route::post('/sample', function(){
+    return 123;
+});
+
+Route::post('/login', [UserController::class, 'login']);
+Route::post('/register', [UserController::class, 'register']);
+
+//forget password api
+Route::post('forget-passowrd', [ForgetPassword::class, 'forget_password']);
+Route::post('reset-passowrd/', [ForgetPassword::class, 'reset_password']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     //popular products apis
     Route::get('popular-product', [PopularProductController::class, 'get']);
@@ -27,9 +39,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('popular-product/delete', [PopularProductController::class, 'delete']);
 
     //products apis
-    Route::get('all', [ProductController::class, 'get']);
-    Route::get('search/{name}', [ProductController::class, 'search']);
-    Route::get('filter/{condition}', [ProductController::class, 'filter']);
+    Route::get('product/all', [ProductController::class, 'get']);
+    Route::get('product/search/{name}', [ProductController::class, 'search']);
+    Route::get('product/filter/{condition}', [ProductController::class, 'filter']);
 
     //reviews apis
     Route::get('reviews/product/{product_id}', [ReviewController::class, 'get']);
@@ -41,11 +53,3 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('user/update', [UserController::class, 'update']);
     Route::post('user/change-password', [UserController::class, 'change_password']);
 });
-
-//auth apis
-Route::post('login', [UserController::class, 'login']);
-Route::post('register', [UserController::class, 'register']);
-
-//forget password api
-Route::post('forget-passowrd', [ForgetPassword::class, 'forget_password']);
-Route::post('reset-passowrd/', [ForgetPassword::class, 'reset_password']);
